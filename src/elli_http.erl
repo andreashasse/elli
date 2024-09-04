@@ -466,7 +466,7 @@ recv_request(Socket, Buffer, Options, {Mod, Args} = _Callback) ->
       Buffer   :: binary(),
       Opts     :: proplists:proplist(),
       Callback :: elli_handler:callback(),
-      Headers  :: {{elli:headers(), elli:headers()}, any()}. % TODO: refine
+      Headers  :: {{elli:headers(), elli:headers()}, binary()}.
 get_headers(_Socket, {0, 9}, _, _, _) ->
     {{[], []}, <<>>};
 get_headers(Socket, {1, _}, Buffer, Opts, Callback) ->

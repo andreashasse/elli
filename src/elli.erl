@@ -44,7 +44,7 @@
 -type response_code() :: 100..999.
 
 -record(state, {socket         :: elli_tcp:socket(),
-                acceptors      :: ets:tid(),
+                acceptors      :: ets:table(),
                 open_reqs = 0  :: non_neg_integer(),
                 options   = [] :: [{_, _}],     % TODO: refine
                 callback       :: elli_handler:callback()
@@ -178,7 +178,7 @@ http_start(Socket, Options, Callback, CallbackArgs, Acceptors) ->
 
 %% @hidden
 -spec handle_call(get_acceptors, {pid(), _Tag}, state()) ->
-                         {reply, {ok, [ets:tid()]}, state()};
+                         {reply, {ok, [ets:table()]}, state()};
                  (get_open_reqs, {pid(), _Tag}, state()) ->
                          {reply, {ok, OpenReqs :: non_neg_integer()}, state()};
                  (stop, {pid(), _Tag}, state()) -> {stop, normal, ok, state()};
@@ -212,11 +212,9 @@ handle_cast(_Msg, State) ->
 
 
 %% @hidden
--spec handle_info({'EXIT', _Pid, Reason}, State0) -> Result when
-      State0 :: state(),
-      Reason :: {error, emfile},
-      Result :: {stop, emfile, State0}
-              | {noreply, State1 :: state()}.
+-spec handle_info({'EXIT', pid(), term()}, State0 :: state()) ->
+    {stop, emfile, State0 :: state()} |
+    {noreply, State1 :: state()}.
 handle_info({'EXIT', _Pid, {error, emfile}}, State) ->
     ?LOG_ERROR("No more file descriptors, shutting down~n"),
     {stop, emfile, State};

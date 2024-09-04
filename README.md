@@ -76,12 +76,11 @@ A minimal callback module could look like this:
 -module(elli_minimal_callback).
 -export([handle/2, handle_event/3]).
 
--include_lib("elli/include/elli.hrl").
 -behaviour(elli_handler).
 
 handle(Req, _Args) ->
     %% Delegate to our handler function
-    handle(Req#req.method, elli_request:path(Req), Req).
+    handle(elli_request:method(Req), elli_request:path(Req), Req).
 
 handle('GET',[<<"hello">>, <<"world">>], _Req) ->
     %% Reply with a normal response. `ok' can be used instead of `200'
