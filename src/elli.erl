@@ -10,7 +10,7 @@
 -include("elli.hrl").
 -include("elli_util.hrl").
 
--ifdef(IS_OTP_25).
+-if(?OTP_RELEASE >= 25).
 -define(ETS_TABLE(), ets:table()).
 -else.
 -define(ETS_TABLE(), ets:tid()).
