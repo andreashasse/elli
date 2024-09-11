@@ -44,7 +44,7 @@
 %% @type body(). A binary or iolist.
 -type body() :: binary() | iolist().
 
--type header()  :: {Key::binary(), Value::binary() | string()}.
+-type header()  :: {Key::binary(), Value::binary() | string() | integer()}.
 -type headers() :: [header()].
 
 -type response_code() :: 100..999.
