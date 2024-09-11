@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        otp_version: [24, 25]
+        otp_version: [24, 25, 26, 27]
         os: [ubuntu-22.04]
         rebar3_version: [3.22]
 
