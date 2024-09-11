@@ -10,6 +10,12 @@
 -include("elli.hrl").
 -include("elli_util.hrl").
 
+-ifdef(IS_OTP_25).
+-define(ETS_TABLE(), ets:table()).
+-else.
+-define(ETS_TABLE(), ets:tid()).
+-endif.
+
 %% API
 -export([start_link/0,
          start_link/1,
@@ -44,7 +50,7 @@
 -type response_code() :: 100..999.
 
 -record(state, {socket         :: elli_tcp:socket(),
-                acceptors      :: ets:table(),
+                acceptors      :: ?ETS_TABLE(),
                 open_reqs = 0  :: non_neg_integer(),
                 options   = [] :: [{_, _}],     % TODO: refine
                 callback       :: elli_handler:callback()
@@ -178,7 +184,7 @@ http_start(Socket, Options, Callback, CallbackArgs, Acceptors) ->
 
 %% @hidden
 -spec handle_call(get_acceptors, {pid(), _Tag}, state()) ->
-                         {reply, {ok, [ets:table()]}, state()};
+                         {reply, {ok, [?ETS_TABLE()]}, state()};
                  (get_open_reqs, {pid(), _Tag}, state()) ->
                          {reply, {ok, OpenReqs :: non_neg_integer()}, state()};
                  (stop, {pid(), _Tag}, state()) -> {stop, normal, ok, state()};
