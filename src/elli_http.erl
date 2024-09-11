@@ -728,17 +728,28 @@ get_header(Key, Headers, Default) ->
 %%
 
 parse_path({abs_path, FullPath}) ->
-    URIMap = uri_string:parse(FullPath),
-    Host = maps:get(host, URIMap, undefined),
-    Scheme = maps:get(scheme, URIMap, undefined),
-    Path = maps:get(path, URIMap, <<>>),
-    Query = maps:get(query, URIMap, <<>>),
-    Port = maps:get(port, URIMap, case Scheme of http -> 80; https -> 443; _ -> undefined end),
-    {ok, {Scheme, Host, Port}, {Path, split_path(Path), uri_string:dissect_query(Query)}};
+    case uri_string:parse(FullPath) of
+        URIMap when is_map(URIMap) ->
+            Host = maps:get(host, URIMap, undefined),
+            Scheme = maps:get(scheme, URIMap, undefined),
+            Path = maps:get(path, URIMap, <<>>),
+            Query = maps:get(query, URIMap, <<>>),
+            Port = maps:get(port, URIMap, default_port(Scheme)),
+            {ok, {Scheme, Host, Port}, {Path, split_path(Path), uri_string:dissect_query(Query)}};
+        {error, Reason, _} ->
+            {error, Reason}
+    end;
 parse_path({'absoluteURI', Scheme, Host, Port, Path}) ->
-    setelement(2, parse_path({abs_path, Path}), {Scheme, Host, Port});
+    case parse_path({abs_path, Path}) of
+        {error, Reason} -> {error, Reason};
+        Resp -> setelement(2, Resp, {Scheme, Host, Port})
+    end;
 parse_path(_) ->
     {error, unsupported_uri}.
+
+default_port(http) -> 80;
+default_port(https) -> 443;
+default_port(_) -> undefined.
 
 split_path(Path) ->
     [P || P <- binary:split(Path, [<<"/">>], [global]),
